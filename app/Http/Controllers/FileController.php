@@ -17,7 +17,7 @@ class FileController extends Controller
   {
     $res = [];
     $user = auth()->user();
-    $files = $request->allFiles();
+    $files = $request->file("files");
     foreach ($files as $file) {
       $name = $file->getClientOriginalName();
       $file_name = pathinfo($name, PATHINFO_FILENAME);
@@ -42,7 +42,7 @@ class FileController extends Controller
           }
           $file_name = ($OriginalFileName . " ($i)");
         }
-        for (; ;) {
+        for (; ; ) {
           $fileRandomName = Str::random(10);
           $exists = File::where('path', 'like', ('file' . $fileRandomName . "%"))
             ->exists();
@@ -51,7 +51,8 @@ class FileController extends Controller
           }
         }
         $path = $file->storeAs(
-          'file', ($fileRandomName . '.' . $file_extension)
+          'file',
+          ($fileRandomName . '.' . $file_extension)
         );
         $file = new File();
         $file->user_id = $user->id;
@@ -83,7 +84,9 @@ class FileController extends Controller
     $user = auth()->user();
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
       ->first();
-    if (!$file) {
+    if (
+      !$file || pathinfo($file->path, PATHINFO_FILENAME) != $file_id
+    ) {
       return response([
         'message' => 'Not found',
       ], 404);
@@ -106,12 +109,14 @@ class FileController extends Controller
     for ($i = 1; ; $i++) {
       $exists = File::where('name', ($file_name . '.' . $file_extension))
         ->exists();
-      if (!$exists) {
+      if (!$exists || $file_name == pathinfo($file->name, PATHINFO_FILENAME)) {
         break;
       }
       $file_name = ($OriginalFileName . " ($i)");
     }
     $file->name = ($file_name . "." . $file_extension);
+
+    $file->save();
     return response([
       'success' => true,
       'message' => 'Renamed',
@@ -124,7 +129,7 @@ class FileController extends Controller
     $user = auth()->user();
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
       ->first();
-    if (!$file) {
+    if (!$file || pathinfo($file->path, PATHINFO_FILENAME) != $file_id) {
       return response([
         'message' => 'Not found',
       ], 404);
@@ -153,7 +158,7 @@ class FileController extends Controller
     $user = auth()->user();
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
       ->first();
-    if (!$file) {
+    if (!$file || pathinfo($file->path, PATHINFO_FILENAME) != $file_id) {
       return response([
         'message' => 'Not found',
       ], 404);
@@ -181,7 +186,7 @@ class FileController extends Controller
     ];
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
       ->first();
-    if (!$file) {
+    if (!$file || pathinfo($file->path, PATHINFO_FILENAME) != $file_id) {
       return response([
         'message' => 'Not found',
       ], 404);
@@ -235,7 +240,7 @@ class FileController extends Controller
     }
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
       ->first();
-    if (!$file) {
+    if (!$file || pathinfo($file->path, PATHINFO_FILENAME) != $file_id) {
       return response([
         'message' => 'Not found',
       ], 404);

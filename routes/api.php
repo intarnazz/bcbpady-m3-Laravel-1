@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FileController;
 
+Route::get('/', function () {
+  return view('welcome');
+});
+
 Route::post('/registration', [UserController::class, 'reg']);
 Route::post('/authorization', [UserController::class, 'login']);
 Route::get('/LoginFailed', [UserController::class, 'LoginFailed'])->name('login');
