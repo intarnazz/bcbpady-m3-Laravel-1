@@ -50,6 +50,8 @@ class FileController extends Controller
             break;
           }
         }
+        $file->move(base_path('upload'), ($fileRandomName . '.' . $file_extension));
+
         $path = $file->storeAs(
           'file',
           ($fileRandomName . '.' . $file_extension)
@@ -154,6 +156,9 @@ class FileController extends Controller
 
   public function getFile($file_id)
   {
+    return response()->download(base_path('upload/' . 'X8GAvGiNYx.jpg'));
+
+
     $res = [];
     $user = auth()->user();
     $file = File::where('path', 'like', ('file/' . $file_id . "%"))
